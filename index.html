@@ -589,13 +589,23 @@
     function calculateRetirementDate(age, employmentDate) {const retirement = new Date(employmentDate);retirement.setFullYear(retirement.getFullYear() + (60 - parseInt(age)));return retirement.toISOString().split('T')[0];}
     function updateRetirementDate() {const age = document.getElementById('empAge').value;const empDate = document.getElementById('empDate').value;if (age && empDate) {document.getElementById('empRetirementDate').value = calculateRetirementDate(age, empDate);}}
     async function loadEmployeeList() {
-      const search = document.getElementById('searchEmployee').value;
+      const search = document.getElementById('searchEmployee').value.trim();
       const status = document.getElementById('filterStatus').value;
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      
       try {
-        const params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (status) params.append('status', status);
-        allEmployees = await apiCall(`/api/employees?${params.toString()}`);
+        const response = await fetch(`/api/employees${queryString}`, {
+          credentials: 'same-origin'
+        });
+        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        console.log('Employees loaded:', data.length);
+        allEmployees = data;
         
         // Automatically sort by full_name alphabetically (case-insensitive)
         allEmployees.sort((a, b) => {
@@ -605,36 +615,68 @@
         });
         
         renderEmployeeTable();
-      } catch (error) {showMessage('Failed to load employees', 'error');document.getElementById('employeeTableBody').innerHTML = '<tr><td colspan="18" style="text-align:center;color:#e74c3c">Failed to load employees</td></tr>';}
+      } catch (error) {
+        console.error('Load employees error:', error);
+        showMessage('Failed to load employees. Check console for details.', 'error');
+        document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="18" style="text-align:center;color:var(--danger)">Error loading employees. Please refresh.</td></tr>`;
+      }
     }
     function filterEmployees() {loadEmployeeList();}
     
+    // Helper to prevent HTML injection
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+    
     function renderEmployeeTable() {
       const tbody = document.getElementById('employeeTableBody');
+      if (!tbody) return;
+      
       tbody.innerHTML = '';
-      if (allEmployees.length === 0) {tbody.innerHTML = '<tr><td colspan="18" style="text-align:center;color:#7f8c8d">No employees found</td></tr>';return;}
+      
+      if (!allEmployees || allEmployees.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="18" style="text-align:center;color:#7f8c8d">No employees found</td></tr>';
+        return;
+      }
+      
+      // Helper to safely get Ethiopian date
+      function safeEthDate(emp, field) {
+        const val = emp[field];
+        return val && typeof val === 'string' && val.trim() !== '' ? val : null;
+      }
+      
       allEmployees.forEach(emp => {
         const tr = document.createElement('tr');
         const statusClass = `status-${emp.status}`;
         
+        // Safely format dates
+        const empDate = formatDisplayDate(emp.employment_date, safeEthDate(emp, 'employment_date_eth'));
+        const retDate = formatDisplayDate(emp.retirement_date, safeEthDate(emp, 'retirement_date_eth'));
+        
         tr.innerHTML = `
           <td>${emp.employee_number}</td>
-          <td style="white-space: nowrap;">${emp.full_name}</td>
-          <td>${emp.gender}</td>
-          <td>${emp.age}</td>
-          <td style="white-space: nowrap;">${emp.position}</td>
-          <td>${emp.education_background || 'N/A'}</td>
-          <td>${emp.field_of_study || 'N/A'}</td>
-          <td style="white-space: nowrap;">${formatDisplayDate(emp.employment_date, emp.employment_date_eth)}</td>
-          <td>${emp.phone || 'N/A'}</td>
-          <td>${emp.address || 'N/A'}</td>
-          <td>${emp.factory_name || 'N/A'}</td>
+          <td style="white-space: nowrap;">${escapeHtml(emp.full_name)}</td>
+          <td>${emp.gender || '—'}</td>
+          <td>${emp.age ?? '—'}</td>
+          <td style="white-space: nowrap;">${escapeHtml(emp.position || '—')}</td>
+          <td>${escapeHtml(emp.education_background || '—')}</td>
+          <td>${escapeHtml(emp.field_of_study || '—')}</td>
+          <td style="white-space: nowrap;">${empDate}</td>
+          <td>${emp.phone || '—'}</td>
+          <td>${emp.address || '—'}</td>
+          <td>${emp.factory_name || '—'}</td>
           <td style="white-space: nowrap;">${formatCurrency(emp.salary)}</td>
-          <td><span class="${statusClass}">${emp.status.charAt(0).toUpperCase() + emp.status.slice(1)}</span></td>
-          <td style="white-space: nowrap;">${formatDisplayDate(emp.retirement_date, emp.retirement_date_eth)}</td>
-          <td><span class="${emp.health_status === 'abnormal' ? 'status-suspended' : 'status-active'}">${emp.health_status.charAt(0).toUpperCase() + emp.health_status.slice(1)}</span></td>
-          <td>${emp.emer_name || 'N/A'}</td>
-          <td>${emp.emer_phone || 'N/A'}</td>
+          <td><span class="${statusClass}">${emp.status?.charAt(0).toUpperCase() + emp.status?.slice(1) || '—'}</span></td>
+          <td style="white-space: nowrap;">${retDate}</td>
+          <td><span class="${emp.health_status === 'abnormal' ? 'status-suspended' : 'status-active'}">${emp.health_status?.charAt(0).toUpperCase() + emp.health_status?.slice(1) || 'Normal'}</span></td>
+          <td>${escapeHtml(emp.emer_name || '—')}</td>
+          <td>${emp.emer_phone || '—'}</td>
           <td style="white-space: nowrap;">
             <button class="action-btn btn-view" onclick="viewEmployee(${emp.id})"><i class="fas fa-eye"></i> View</button>
             <button class="action-btn btn-edit" onclick="editEmployee(${emp.id})"><i class="fas fa-edit"></i> Edit</button>
