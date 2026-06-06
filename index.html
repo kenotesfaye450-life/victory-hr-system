@@ -680,10 +680,13 @@
           <td style="white-space: nowrap;">
             <button class="action-btn btn-view" onclick="viewEmployee(${emp.id})"><i class="fas fa-eye"></i> View</button>
             <button class="action-btn btn-edit" onclick="editEmployee(${emp.id})"><i class="fas fa-edit"></i> Edit</button>
-            ${emp.status === 'suspended' ? 
-              `<button class="action-btn btn-activate" onclick="reactivateEmployee(${emp.id})"><i class="fas fa-play"></i> Activate</button>` : 
-              `<button class="action-btn btn-suspend" onclick="suspendEmployee(${emp.id})"><i class="fas fa-pause"></i> Suspend</button>`}
-            <button class="action-btn btn-archive" onclick="archiveEmployee(${emp.id})"><i class="fas fa-archive"></i> Archive</button>
+            ${emp.status === 'archived' ? 
+              `<button class="action-btn btn-activate" onclick="restoreEmployee(${emp.id})"><i class="fas fa-undo-alt"></i> Restore</button>` : 
+              (emp.status === 'suspended' ? 
+                `<button class="action-btn btn-activate" onclick="reactivateEmployee(${emp.id})"><i class="fas fa-play"></i> Activate</button>` : 
+                `<button class="action-btn btn-suspend" onclick="suspendEmployee(${emp.id})"><i class="fas fa-pause"></i> Suspend</button>`)}
+            ${emp.status !== 'archived' ? 
+              `<button class="action-btn btn-archive" onclick="archiveEmployee(${emp.id})"><i class="fas fa-archive"></i> Archive</button>` : ''}
           </td>
         `;
         
@@ -794,7 +797,8 @@
     }
     async function suspendEmployee(empId) {showConfirmModal('Are you sure you want to suspend this employee?', async () => {try {await apiCall(`/api/employees/${empId}/suspend`, {method: 'POST'});showMessage('Employee suspended successfully', 'success');loadEmployeeList();} catch (error) {showMessage(error.message || 'Failed to suspend employee', 'error');}});}
     async function reactivateEmployee(empId) {showConfirmModal('Are you sure you want to reactivate this employee?', async () => {try {await apiCall(`/api/employees/${empId}/reactivate`, {method: 'POST'});showMessage('Employee reactivated successfully', 'success');loadEmployeeList();} catch (error) {showMessage(error.message || 'Failed to reactivate employee', 'error');}});}
-    async function archiveEmployee(empId) {showConfirmModal('Are you sure you want to archive this employee? This action cannot be easily undone.', async () => {try {await apiCall(`/api/employees/${empId}/archive`, {method: 'POST'});showMessage('Employee archived successfully', 'success');loadEmployeeList();} catch (error) {showMessage(error.message || 'Failed to archive employee', 'error');}});}
+    async function archiveEmployee(empId) {showConfirmModal('Are you sure you want to archive this employee?', async () => {try {await apiCall(`/api/employees/${empId}/archive`, {method: 'POST'});showMessage('Employee archived successfully', 'success');loadEmployeeList();} catch (error) {showMessage(error.message || 'Failed to archive employee', 'error');}});}
+    async function restoreEmployee(empId) {showConfirmModal('Restore this employee from archive?', async () => {try {await apiCall(`/api/employees/${empId}/restore`, {method: 'POST'});showMessage('Employee restored successfully', 'success');loadEmployeeList();} catch (error) {showMessage(error.message || 'Failed to restore employee', 'error');}});}
     function exportEmployeesCSV() {
       if (allEmployees.length === 0) {showMessage('No employees to export', 'warning');return;}
       const csvData = allEmployees.map(emp => ({

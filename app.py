@@ -335,6 +335,8 @@ def reactivate_employee(emp_id):
     # Calculate suspension days
     if employee.suspension_start_date:
         days = (date.today() - employee.suspension_start_date).days
+        if employee.suspension_days is None:
+            employee.suspension_days = 0
         employee.suspension_days += days
         employee.suspension_start_date = None
     
@@ -355,6 +357,22 @@ def archive_employee(emp_id):
     db.session.commit()
     
     add_audit_log(employee.employee_number, 'Archived', f'Employee {employee.full_name} archived')
+    db.session.commit()
+    
+    return jsonify({'success': True, 'employee': employee.to_dict()})
+
+@app.route('/api/employees/<int:emp_id>/restore', methods=['POST'])
+@login_required
+def restore_employee(emp_id):
+    employee = Employee.query.get_or_404(emp_id)
+    
+    if employee.status != 'archived':
+        return jsonify({'success': False, 'message': 'Employee is not archived'}), 400
+    
+    employee.status = 'active'
+    db.session.commit()
+    
+    add_audit_log(employee.employee_number, 'Restored', f'Employee {employee.full_name} restored from archive')
     db.session.commit()
     
     return jsonify({'success': True, 'employee': employee.to_dict()})
