@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+</head>
+<body>
+  <h1>API Test Page</h1>
+  <button onclick="testAPI()">Test Employee API</button>
+  <div id="result"></div>
+  
+  <script>
+    async function testAPI() {
+      const result = document.getElementById('result');
+      result.innerHTML = 'Loading...';
+      
+      try {
+        console.log('Fetching /api/employees...');
+        const response = await fetch('/api/employees', {
+          credentials: 'same-origin',
+          headers: {'Content-Type': 'application/json'}
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (response.status === 401) {
+          result.innerHTML = '<p style="color:red">UNAUTHORIZED - Need to login first</p>';
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('Data received:', data);
+        result.innerHTML = `<p style="color:green">SUCCESS! Found ${data.length} employees</p><pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre>`;
+      } catch (error) {
+        console.error('Error:', error);
+        result.innerHTML = `<p style="color:red">ERROR: ${error.message}</p>`;
+      }
+    }
+    
+    // Auto-run on page load
+    window.onload = testAPI;
+  </script>
+</body>
+</html>

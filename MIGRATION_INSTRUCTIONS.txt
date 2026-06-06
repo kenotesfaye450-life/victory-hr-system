@@ -1,0 +1,132 @@
+===============================================
+SUSPENSION/ARCHIVE FIX - MIGRATION INSTRUCTIONS
+===============================================
+
+COMPLETED CHANGES:
+==================
+
+1. BACKEND (app.py):
+   - Fixed NULL suspension_days error in reactivate_employee() function
+     * Added check: if employee.suspension_days is None, set to 0 before incrementing
+   - Added new restore endpoint: /api/employees/<id>/restore
+     * Allows unarchiving employees (archived -> active)
+     * Creates audit log entry for restore action
+
+2. FRONTEND (index.html):
+   - Added restoreEmployee() JavaScript function
+   - Updated employee table action buttons:
+     * Archived employees: Show "Restore" button (no Archive button)
+     * Active employees: Show "Suspend" + "Archive" buttons
+     * Suspended employees: Show "Activate" + "Archive" buttons
+
+3. SQL MIGRATION FILE:
+   - Created fix_suspension_days.sql with migration commands
+
+===============================================
+ACTION REQUIRED: RUN SQL MIGRATION
+===============================================
+
+You need to run the SQL migration ONE TIME to fix existing NULL values:
+
+OPTION 1 - Using pgAdmin:
+--------------------------
+1. Open pgAdmin
+2. Connect to your PostgreSQL server
+3. Navigate to victory_hr database
+4. Open Query Tool (Tools -> Query Tool)
+5. Open the file: fix_suspension_days.sql
+6. Execute the query (F5)
+
+OPTION 2 - Using psql command line:
+------------------------------------
+1. Open Command Prompt
+2. Navigate to project folder:
+   cd C:\Users\kenot\Desktop\Victorywater
+3. Run:
+   psql -U postgres -d victory_hr -f fix_suspension_days.sql
+4. Enter your PostgreSQL password when prompted
+
+OPTION 3 - Run SQL manually:
+-----------------------------
+Copy and paste these commands into any PostgreSQL client:
+
+UPDATE employees SET suspension_days = 0 WHERE suspension_days IS NULL;
+ALTER TABLE employees ALTER COLUMN suspension_days SET DEFAULT 0;
+
+===============================================
+TESTING THE FLOWS
+===============================================
+
+After running the migration, test these flows:
+
+1. SUSPEND -> ACTIVATE:
+   - Select an active employee
+   - Click "Suspend"
+   - Verify status changes to "Suspended"
+   - Click "Activate"
+   - Verify status changes to "Active"
+   - Check that suspension_days is calculated correctly (no errors)
+
+2. ARCHIVE -> RESTORE:
+   - Select any employee (active or suspended)
+   - Click "Archive"
+   - Verify status changes to "Archived"
+   - Verify "Restore" button appears (no "Archive" button)
+   - Click "Restore"
+   - Verify status changes to "Active"
+
+3. CHECK AUDIT LOG:
+   - Go to Audit Log view
+   - Verify entries for: Suspended, Reactivated, Archived, Restored
+
+===============================================
+GIT STATUS
+===============================================
+
+Changes committed and pushed to GitHub:
+- Commit: "Fix: NULL suspension_days error and add employee restore (unarchive) functionality"
+- Branch: main
+- Repository: https://github.com/kenotesfaye450-life/victory-hr-system
+
+Files changed:
+- app.py (restore endpoint added, NULL check fixed)
+- index.html (restore function and UI updates)
+- fix_suspension_days.sql (new migration file)
+
+===============================================
+TROUBLESHOOTING
+===============================================
+
+If you see "Connection error. Please check if the server is running" during login:
+
+1. Check if Flask server is running:
+   - Open Command Prompt
+   - Navigate to project folder
+   - Run: python app.py
+   - Server should start on http://127.0.0.1:5000
+
+2. Check PostgreSQL connection:
+   - Verify PostgreSQL is running
+   - Check connection string in app.py:
+     postgresql://postgres:wisdomlife1%40@localhost/victory_hr
+   - Verify database "victory_hr" exists
+   - Verify password is correct
+
+3. Check database initialization:
+   - If database is empty, run: python -c "from app import app, init_db; init_db()"
+
+===============================================
+SUMMARY
+===============================================
+
+✅ Fixed: NULL suspension_days error when reactivating employees
+✅ Added: Employee restore (unarchive) functionality
+✅ Updated: Action buttons show correct options for each status
+✅ Created: SQL migration file to fix existing NULL values
+✅ Committed: All changes pushed to GitHub
+
+⚠️  NEXT STEP: Run the SQL migration (see instructions above)
+
+After migration, all flows will work smoothly:
+- Suspend ↔ Activate (no errors)
+- Archive ↔ Restore (full bi-directional)
