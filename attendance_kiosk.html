@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Kiosk - Victory Water & Happy Juice</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="hero" style="padding: 2rem;">
+        <h1><i class="fas fa-clock"></i> Attendance Kiosk</h1>
+        <p>Victory Water & Happy Juice</p>
+    </div>
+
+    <div class="container">
+        <div class="kiosk-container">
+            <div class="card">
+                <h2 class="card-title" style="text-align: center;">
+                    <i class="fas fa-fingerprint"></i> Employee Check In/Out
+                </h2>
+
+                <!-- Employee Number Input -->
+                <div class="kiosk-input">
+                    <div class="form-group">
+                        <label style="text-align: center; font-size: 1.2rem;">Employee Number</label>
+                        <input 
+                            type="text" 
+                            id="employeeNumber" 
+                            placeholder="Enter your employee number"
+                            onchange="updateButtonStates()"
+                            onkeyup="updateButtonStates()"
+                        >
+                    </div>
+                </div>
+
+                <!-- Fingerprint Placeholder Button -->
+                <div class="kiosk-fingerprint">
+                    <button class="btn btn-secondary" onclick="handleFingerprintDemo()">
+                        <i class="fas fa-fingerprint"></i> Use Fingerprint (Demo)
+                    </button>
+                </div>
+
+                <!-- Check In/Out Buttons -->
+                <div class="kiosk-buttons">
+                    <button 
+                        class="btn btn-success" 
+                        id="checkInBtn" 
+                        onclick="handleCheckIn()"
+                        disabled
+                    >
+                        <i class="fas fa-sign-in-alt"></i> CHECK IN
+                    </button>
+                    <button 
+                        class="btn btn-danger" 
+                        id="checkOutBtn" 
+                        onclick="handleCheckOut()"
+                        disabled
+                    >
+                        <i class="fas fa-sign-out-alt"></i> CHECK OUT
+                    </button>
+                </div>
+
+                <!-- Recent Activity -->
+                <div style="margin-top: 3rem;">
+                    <h3 style="color: var(--dark); margin-bottom: 1rem;">
+                        <i class="fas fa-history"></i> Recent Activity (Today)
+                    </h3>
+                    <div class="table-container">
+                        <table id="recentActivityTable">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Action</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Victory Water & Happy Juice Attendance System</p>
+    </footer>
+
+    <div id="toast-container"></div>
+    
+    <script src="utils.js"></script>
+    <script>
+        // Update button states
+        function updateButtonStates() {
+            const employeeNumber = document.getElementById('employeeNumber').value.trim();
+            const checkInBtn = document.getElementById('checkInBtn');
+            const checkOutBtn = document.getElementById('checkOutBtn');
+            
+            if (!employeeNumber) {
+                checkInBtn.disabled = true;
+                checkOutBtn.disabled = true;
+            } else {
+                // Enable both buttons - server will validate
+                checkInBtn.disabled = false;
+                checkOutBtn.disabled = false;
+            }
+        }
+
+        // Handle fingerprint demo
+        function handleFingerprintDemo() {
+            showMessage('Fingerprint demo: employee number 1 auto-filled', 'info');
+            document.getElementById('employeeNumber').value = '1';
+            updateButtonStates();
+        }
+
+        // Handle check in
+        async function handleCheckIn() {
+            const employeeNumber = document.getElementById('employeeNumber').value.trim();
+            
+            if (!employeeNumber) {
+                showMessage('Please enter an employee number', 'error');
+                return;
+            }
+            
+            const checkInBtn = document.getElementById('checkInBtn');
+            checkInBtn.disabled = true;
+            checkInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking In...';
+            
+            try {
+                const response = await fetch('/api/attendance/kiosk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        employee_number: parseInt(employeeNumber),
+                        action: 'in'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage(data.message, 'success');
+                    document.getElementById('employeeNumber').value = '';
+                    updateButtonStates();
+                    loadRecentActivity();
+                } else {
+                    showMessage(data.message || 'Check-in failed', 'error');
+                }
+            } catch (error) {
+                console.error('Check-in error:', error);
+                showMessage('Connection error. Please try again.', 'error');
+            } finally {
+                checkInBtn.disabled = false;
+                checkInBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> CHECK IN';
+            }
+        }
+
+        // Handle check out
+        async function handleCheckOut() {
+            const employeeNumber = document.getElementById('employeeNumber').value.trim();
+            
+            if (!employeeNumber) {
+                showMessage('Please enter an employee number', 'error');
+                return;
+            }
+            
+            const checkOutBtn = document.getElementById('checkOutBtn');
+            checkOutBtn.disabled = true;
+            checkOutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Out...';
+            
+            try {
+                const response = await fetch('/api/attendance/kiosk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        employee_number: parseInt(employeeNumber),
+                        action: 'out'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage(data.message, 'success');
+                    document.getElementById('employeeNumber').value = '';
+                    updateButtonStates();
+                    loadRecentActivity();
+                } else {
+                    showMessage(data.message || 'Check-out failed', 'error');
+                }
+            } catch (error) {
+                console.error('Check-out error:', error);
+                showMessage('Connection error. Please try again.', 'error');
+            } finally {
+                checkOutBtn.disabled = false;
+                checkOutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> CHECK OUT';
+            }
+        }
+
+        // Load recent activity for today
+        async function loadRecentActivity() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const response = await fetch(`/api/attendance/logs?start_date=${today}&end_date=${today}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load activity');
+                }
+                
+                const logs = await response.json();
+                
+                // Sort by timestamp descending, take last 10
+                const recentLogs = logs
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .slice(0, 10);
+                
+                const table = document.getElementById('recentActivityTable');
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (recentLogs.length === 0) {
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.colSpan = 3;
+                    td.textContent = 'No activity today';
+                    td.style.textAlign = 'center';
+                    td.style.color = '#7f8c8d';
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    return;
+                }
+                
+                recentLogs.forEach(log => {
+                    const tr = document.createElement('tr');
+                    const actionText = log.action === 'in' ? 'Check In' : 'Check Out';
+                    const actionColor = log.action === 'in' ? 'var(--green)' : 'var(--danger)';
+                    tr.innerHTML = `
+                        <td>${log.employee_name}</td>
+                        <td><span style="color: ${actionColor}; font-weight: bold;">${actionText}</span></td>
+                        <td>${log.time} (${log.date_eth || log.date})</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Failed to load recent activity:', error);
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRecentActivity();
+            updateButtonStates();
+            // Refresh activity every 30 seconds
+            setInterval(loadRecentActivity, 30000);
+        });
+    </script>
+</body>
+</html>

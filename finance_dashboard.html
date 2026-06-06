@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Dashboard - Victory Water & Happy Juice</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">Victory Finance</div>
+            <div class="nav-right">
+                <span style="margin-right: 1rem;">
+                    <i class="fas fa-chart-line"></i> Finance Manager
+                </span>
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="login.html" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="color: var(--green); margin-bottom: 2rem;">
+            <i class="fas fa-chart-line"></i> Finance Dashboard
+        </h1>
+
+        <div class="card">
+            <div style="text-align: center; padding: 3rem;">
+                <i class="fas fa-coins" style="font-size: 5rem; color: var(--yellow); margin-bottom: 2rem;"></i>
+                <h2 style="color: var(--dark); margin-bottom: 1rem;">Finance Module</h2>
+                <p style="color: #7f8c8d; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                    The finance module including payroll management, expense tracking, revenue recording, 
+                    and profit & loss analysis will be implemented in a future update.
+                </p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: var(--light); border-radius: 10px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    <h4 style="color: var(--dark); margin-bottom: 0.5rem;">Coming Soon:</h4>
+                    <ul style="text-align: left; color: #7f8c8d; line-height: 2;">
+                        <li>Automated payroll calculations</li>
+                        <li>Expense and revenue tracking</li>
+                        <li>Monthly profit & loss reports</li>
+                        <li>Financial analytics and charts</li>
+                        <li>Budget management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Victory Water & Happy Juice Finance Dashboard</p>
+    </footer>
+
+    <div id="toast-container"></div>
+    <script src="utils.js"></script>
+    <script>
+        // Finance module placeholder - to be implemented
+        document.addEventListener('DOMContentLoaded', () => {
+            showMessage('Finance module will be available in a future update', 'info');
+        });
+    </script>
+</body>
+</html>

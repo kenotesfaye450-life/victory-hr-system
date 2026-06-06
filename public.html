@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Victory Water & Happy Juice</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>Victory Water & Happy Juice</h1>
+            <p style="font-size: 1.3rem; margin-top: 1rem;">Premium Quality Water and Fruit Juices</p>
+            <p style="font-size: 1rem; opacity: 0.9; margin-top: 0.5rem;">
+                A subsidiary of Amen Juice and Water Manufacturing Plc
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Hero Image Placeholder -->
+        <div class="placeholder">
+            <i class="fas fa-image"></i>
+            <p>Hero Image Placeholder - Replace with actual image later</p>
+        </div>
+
+        <!-- Products Section -->
+        <h2 style="color: var(--green); margin: 3rem 0 1.5rem 0; text-align: center;">
+            <i class="fas fa-bottle-water"></i> Our Products
+        </h2>
+        
+        <div class="product-grid">
+            <div class="product-card">
+                <h3>Victory Water</h3>
+                <div class="placeholder" style="min-height: 250px;">
+                    <i class="fas fa-tint"></i>
+                    <p>Victory Water Image Placeholder</p>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <p>Pure, refreshing natural spring water for your daily hydration needs.</p>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <h3>Happy Juice</h3>
+                <div class="placeholder" style="min-height: 250px;">
+                    <i class="fas fa-glass-whiskey"></i>
+                    <p>Happy Juice Image Placeholder</p>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <p>Delicious fruit juice blends made from the finest Ethiopian fruits.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Section -->
+        <h2 style="color: var(--green); margin: 3rem 0 1.5rem 0; text-align: center;">
+            <i class="fas fa-video"></i> Watch Our Story
+        </h2>
+        
+        <div class="placeholder" style="min-height: 400px;">
+            <i class="fas fa-play-circle"></i>
+            <p>Video will be embedded here</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Company introduction video placeholder</p>
+        </div>
+
+        <!-- Gallery Section -->
+        <h2 style="color: var(--green); margin: 3rem 0 1.5rem 0; text-align: center;">
+            <i class="fas fa-images"></i> Gallery
+        </h2>
+        
+        <div class="gallery-grid">
+            <div class="placeholder" style="min-height: 200px;">
+                <i class="fas fa-camera"></i>
+                <p>Gallery Image 1</p>
+            </div>
+            <div class="placeholder" style="min-height: 200px;">
+                <i class="fas fa-camera"></i>
+                <p>Gallery Image 2</p>
+            </div>
+            <div class="placeholder" style="min-height: 200px;">
+                <i class="fas fa-camera"></i>
+                <p>Gallery Image 3</p>
+            </div>
+            <div class="placeholder" style="min-height: 200px;">
+                <i class="fas fa-camera"></i>
+                <p>Gallery Image 4</p>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <h2 style="color: var(--green); margin: 3rem 0 1.5rem 0; text-align: center;">
+            <i class="fas fa-envelope"></i> Contact Us
+        </h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            <div class="card">
+                <h3 style="color: var(--dark); margin-bottom: 1rem;">
+                    <i class="fas fa-address-card"></i> Contact Information
+                </h3>
+                <p style="margin-bottom: 1rem;">
+                    <i class="fas fa-phone" style="color: var(--green); margin-right: 0.5rem;"></i>
+                    <strong>Phone:</strong> +251-11-123-4567
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    <i class="fas fa-envelope" style="color: var(--green); margin-right: 0.5rem;"></i>
+                    <strong>Email:</strong> info@victorywater.et
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    <i class="fab fa-whatsapp" style="color: var(--green); margin-right: 0.5rem;"></i>
+                    <strong>WhatsApp:</strong> +251-911-234-567
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 style="color: var(--dark); margin-bottom: 1rem;">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </h3>
+                <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                    <div class="form-group">
+                        <label>Name*</label>
+                        <input type="text" id="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email*</label>
+                        <input type="email" id="contactEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message*</label>
+                        <textarea id="contactMessage" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Victory Water & Happy Juice</p>
+        <p style="margin-top: 0.5rem; opacity: 0.8;">A subsidiary of Amen Juice and Water Manufacturing Plc</p>
+    </footer>
+
+    <div id="toast-container"></div>
+    
+    <script src="utils.js"></script>
+    <script>
+        async function handleContactSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage('Message sent successfully', 'success');
+                    document.getElementById('contactForm').reset();
+                } else {
+                    showMessage(data.message || 'Failed to send message', 'error');
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                showMessage('Connection error. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            }
+        }
+    </script>
+</body>
+</html>
